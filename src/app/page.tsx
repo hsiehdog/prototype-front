@@ -1,65 +1,92 @@
-import Image from "next/image";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const features = [
+  {
+    title: "Authentication ready",
+    description:
+      "Better Auth issues secure session cookies out of the box, so your browser forwards credentials automatically.",
+  },
+  {
+    title: "Operator dashboard",
+    description:
+      "Visualize usage, deployments, and events across AI services. Tailwind and shadcn components keep things consistent.",
+  },
+  {
+    title: "AI copilots",
+    description:
+      "Drop-in chat surface that can call your LLM API using the authenticated user’s identity.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/50">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-20">
+        <section className="space-y-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
+            Infrastructure for AI-driven software
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <div className="space-y-4">
+            <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
+              Launch dashboards, chat surfaces, and auth in minutes
+            </h1>
+            <p className="mx-auto max-w-3xl text-lg text-muted-foreground">
+              A Next.js + TypeScript starter that blends Better Auth, Tailwind, and shadcn/ui. Use it to bootstrap internal tooling,
+              AI copilots, or full SaaS products without reinventing your foundation.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg">
+              <Link href="/signup">Create workspace</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/login">Sign in</Link>
+            </Button>
+          </div>
+        </section>
+
+        <section className="grid gap-6 md:grid-cols-3">
+          {features.map((feature) => (
+            <Card key={feature.title} className="border-muted bg-background/80">
+              <CardHeader>
+                <CardTitle>{feature.title}</CardTitle>
+                <CardDescription>{feature.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </section>
+
+        <section className="rounded-3xl border bg-background/70 p-6 shadow-lg">
+          <Card className="border-none bg-transparent shadow-none">
+            <CardHeader>
+              <CardTitle>Plug in your backend</CardTitle>
+              <CardDescription>
+                Point <code className="rounded bg-muted px-2 py-1 text-xs">NEXT_PUBLIC_AUTH_BASE_URL</code> (and optional{" "}
+                <code className="rounded bg-muted px-2 py-1 text-xs">NEXT_PUBLIC_AUTH_BASE_PATH</code>) to your backend&apos;s Better Auth route, then call your APIs with the Better Auth session cookie automatically included.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 text-sm text-muted-foreground md:grid-cols-2">
+              <div>
+                <p className="font-semibold text-foreground">Authentication</p>
+                <p>
+                  Better Auth runs on your backend. Expose it via{" "}
+                  <code className="rounded bg-muted px-1">
+                    NEXT_PUBLIC_AUTH_BASE_URL + NEXT_PUBLIC_AUTH_BASE_PATH
+                  </code>{" "}
+                  so the frontend can call it.
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">AI orchestration</p>
+                <p>Dashboard & chat components call your API through a typed helper that automatically forwards the signed session cookie.</p>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+    </main>
   );
 }

@@ -1,0 +1,191 @@
+type HttpMethod = "GET" | "POST";
+
+export type UsageMetric = {
+  id: string;
+  label: string;
+  value: string;
+  delta: number;
+  helper?: string;
+};
+
+export type ProjectSummary = {
+  id: string;
+  name: string;
+  status: "online" | "degraded" | "paused";
+  updatedAt: string;
+  owner: string;
+};
+
+export type ActivityItem = {
+  id: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  category: "deployment" | "alert" | "usage";
+};
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  createdAt: string;
+  isOptimistic?: boolean;
+};
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const isMock = !API_BASE_URL;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function request<T>(
+  path: string,
+  method: HttpMethod,
+  body?: Record<string, unknown>,
+): Promise<T> {
+  if (!API_BASE_URL) {
+    throw new Error("API base URL is not configured.");
+  }
+
+  const headers = new Headers({
+    "Content-Type": "application/json",
+  });
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    credentials: "include",
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Unexpected API error");
+  }
+
+  if (response.status === 204) {
+    return null as T;
+  }
+
+  return (await response.json()) as T;
+}
+
+const mockData = {
+  usage: [
+    { id: "tokens", label: "Tokens processed", value: "1.2M", delta: 12 },
+    { id: "latency", label: "Avg. latency", value: "820ms", delta: -4 },
+    { id: "users", label: "Active users", value: "864", delta: 8 },
+    { id: "costs", label: "Spend this week", value: "$1,870", delta: -2 },
+  ] satisfies UsageMetric[],
+  projects: [
+    {
+      id: "copilot",
+      name: "Developer Copilot",
+      status: "online",
+      updatedAt: "2 minutes ago",
+      owner: "Platform",
+    },
+    {
+      id: "agenthub",
+      name: "Agent Hub",
+      status: "degraded",
+      updatedAt: "8 minutes ago",
+      owner: "Automation",
+    },
+    {
+      id: "insights",
+      name: "Insights Assistant",
+      status: "paused",
+      updatedAt: "45 minutes ago",
+      owner: "Revenue",
+    },
+  ] satisfies ProjectSummary[],
+  activity: [
+    {
+      id: "deploy-1",
+      title: "New agent deployed",
+      description: "v0.12.4 rolled out to production",
+      timestamp: "Today · 10:42 AM",
+      category: "deployment",
+    },
+    {
+      id: "alert-1",
+      title: "Latency spike detected",
+      description: "LLM provider response time exceeded SLO",
+      timestamp: "Today · 9:17 AM",
+      category: "alert",
+    },
+    {
+      id: "usage-1",
+      title: "Usage milestone",
+      description: "Surpassed 1M prompts this week",
+      timestamp: "Yesterday · 6:03 PM",
+      category: "usage",
+    },
+  ] satisfies ActivityItem[],
+  chat: [
+    {
+      id: "intro-1",
+      role: "assistant",
+      content:
+        "Hi! Ask me anything about your AI workloads—deployments, tokens, incidents, or experimentation.",
+      createdAt: new Date().toISOString(),
+    },
+  ] satisfies ChatMessage[],
+};
+
+export async function fetchUsageMetrics(): Promise<UsageMetric[]> {
+  if (isMock) {
+    await delay(300);
+    return mockData.usage;
+  }
+
+  return request<UsageMetric[]>("/analytics/usage", "GET");
+}
+
+export async function fetchProjectSummaries(): Promise<ProjectSummary[]> {
+  if (isMock) {
+    await delay(320);
+    return mockData.projects;
+  }
+
+  return request<ProjectSummary[]>("/projects", "GET");
+}
+
+export async function fetchActivityFeed(): Promise<ActivityItem[]> {
+  if (isMock) {
+    await delay(280);
+    return mockData.activity;
+  }
+
+  return request<ActivityItem[]>("/activity", "GET");
+}
+
+export async function fetchChatHistory(): Promise<ChatMessage[]> {
+  if (isMock) {
+    await delay(200);
+    return mockData.chat;
+  }
+
+  return request<ChatMessage[]>("/chat/messages", "GET");
+}
+
+export async function sendChatMessage(message: string): Promise<ChatMessage> {
+  if (isMock) {
+    await delay(600);
+    return {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      content:
+        "Here’s a mocked response describing what your managed LLM endpoint would have answered.",
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  return request<ChatMessage>(
+    "/chat/messages",
+    "POST",
+    {
+      message,
+    },
+  );
+}
